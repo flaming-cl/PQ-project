@@ -8,8 +8,7 @@ const {
 } = require("electron");
 const {
   default: installExtension,
-  REDUX_DEVTOOLS,
-  REACT_DEVELOPER_TOOLS
+  REDUX_DEVTOOLS
 } = require("electron-devtools-installer");
 const SecureElectronLicenseKeys = require("secure-electron-license-keys");
 const Protocol = require("./protocol");
@@ -59,7 +58,7 @@ async function createWindow() {
     height: 600,
     title: "Application is currently initializing...",
     webPreferences: {
-      devTools: isDev,
+      devTools: true,
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
@@ -119,7 +118,7 @@ async function createWindow() {
     // Errors are thrown if the dev tools are opened
     // before the DOM is ready
     win.webContents.once("dom-ready", async () => {
-      await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+      await installExtension([REDUX_DEVTOOLS])
         .then((name) => console.log(`Added Extension: ${name}`))
         .catch((err) => console.log("An error occurred: ", err))
         .finally(() => {
@@ -167,21 +166,21 @@ async function createWindow() {
   // });
 
   menuBuilder = MenuBuilder(win, app.name);
-  
+
   // Set up necessary bindings to update the menu items
   // based on the current language selected
-  i18nextMainBackend.on("initialized", (loaded) => {            
+  i18nextMainBackend.on("initialized", (loaded) => {
     i18nextMainBackend.changeLanguage("en");
-    i18nextMainBackend.off("initialized"); // Remove listener to this event as it's not needed anymore   
+    i18nextMainBackend.off("initialized"); // Remove listener to this event as it's not needed anymore
   });
 
   // When the i18n framework starts up, this event is called
   // (presumably when the default language is initialized)
-  // BEFORE the "initialized" event is fired - this causes an 
+  // BEFORE the "initialized" event is fired - this causes an
   // error in the logs. To prevent said error, we only call the
   // below code until AFTER the i18n framework has finished its
   // "initialized" event.
-  i18nextMainBackend.on("languageChanged", (lng) => {    
+  i18nextMainBackend.on("languageChanged", (lng) => {
     if (i18nextMainBackend.isInitialized){
       menuBuilder.buildMenu(i18nextMainBackend);
     }
